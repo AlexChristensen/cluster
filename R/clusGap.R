@@ -13,19 +13,18 @@
 ## MM: renamed arguments, and changed almost everything
 
 clusGap <- function (x, FUNcluster, K.max, B = 100, verbose = interactive(),
-    do_parallel = FALSE, ...)
+    ncores, ...)
 {
     stopifnot(is.function(FUNcluster), length(dim(x)) == 2, K.max >= 2,
               (n <- nrow(x)) >= 1, (p <- ncol(x)) >= 1)
     if(B != (B. <- as.integer(B)) || (B <- B.) <= 0)
         stop("'B' has to be a positive integer")
-
-    apply_fun <- lapply
-
-    if (do_parallel)
-    {
-        apply_fun <- parallel::mclapply
+  
+    if(missing(ncores)){
+      ncores <- round(parallel::detectCores() / 2)
     }
+
+    apply_fun <- future.apply::future_lapply
 
     if(is.data.frame(x))
         x <- as.matrix(x)
@@ -42,6 +41,11 @@ clusGap <- function (x, FUNcluster, K.max, B = 100, verbose = interactive(),
 
     if(verbose) cat("Clustering k = 1,2,..., K.max (= ",K.max,"): .. ", sep='')
 
+    future::plan(
+      strategy = "multisession",
+      workers = ncores
+    )
+    
     logW <- unlist(apply_fun(1:K.max, function(k) log(W.k(x, k))))
 
     if(verbose) cat("done\n")

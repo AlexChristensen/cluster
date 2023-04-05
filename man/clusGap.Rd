@@ -21,7 +21,7 @@
   gap statistics and their standard deviations.
 }
 \usage{ clusGap(x, FUNcluster, K.max, B = 100, verbose = interactive(),
-    do_parallel = FALSE, \dots)
+    ncores, \dots)
 
 maxSE(f, SE.f,
       method = c("firstSEmax", "Tibs2001SEmax", "globalSEmax",
