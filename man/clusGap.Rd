@@ -45,9 +45,9 @@ maxSE(f, SE.f,
     output should be printed.  The default prints one bit per bootstrap
     sample.}
 
-  \item{do_parallel}{logical. If TRUE, then use \code{parallel::mclapply}. If
+  \item{ncores}{logical. If TRUE, then use \code{parallel::mclapply}. If
       FALSE, then use \code{lapply}. To set the number of cores, set
-      \code{option(mc.cores = n_cores)}} where \code{n_cores} is the number of
+      \code{option(mc.cores = n_cores)} where \code{n_cores} is the number of
   cores}.
 
   \item{\dots}{optionally further arguments for \code{FUNcluster()}, see

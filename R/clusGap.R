@@ -24,8 +24,6 @@ clusGap <- function (x, FUNcluster, K.max, B = 100, verbose = interactive(),
       ncores <- round(parallel::detectCores() / 2)
     }
 
-    apply_fun <- future.apply::future_lapply
-
     if(is.data.frame(x))
         x <- as.matrix(x)
     ii <- seq_len(n)
@@ -46,7 +44,10 @@ clusGap <- function (x, FUNcluster, K.max, B = 100, verbose = interactive(),
       workers = ncores
     )
     
-    logW <- unlist(apply_fun(1:K.max, function(k) log(W.k(x, k))))
+    logW <- unlist(
+      future.apply::future_lapply(1:K.max, function(k){log(W.k(x, k))},
+                                  future.seed = NULL)
+    )
 
     if(verbose) cat("done\n")
 
@@ -60,7 +61,7 @@ clusGap <- function (x, FUNcluster, K.max, B = 100, verbose = interactive(),
     if(verbose) cat("Bootstrapping, b = 1,2,..., B (= ", B,
                     ")  [one \".\" per sample]:\n", sep="")
 
-    logWksList <- apply_fun(1:B,
+    logWksList <- future.apply::future_lapply(1:B,
         function(b)
         {
             ## Generate "H0"-data as "parametric bootstrap sample" :
@@ -69,10 +70,10 @@ clusGap <- function (x, FUNcluster, K.max, B = 100, verbose = interactive(),
                 nn=n)
             z <- tcrossprod(z1, V.sx) + m.x # back transformed
             curLogWks <- unlist(lapply(1:K.max, function(k) log(W.k(z, k))))
-            if(verbose && !do_parallel) cat(".", if(b %% 50 == 0) paste(b,"\n"))
+            if(verbose) cat(".", if(b %% 50 == 0) paste(b,"\n"))
 
             curLogWks
-        })
+        }, future.seed = NULL)
 
     logWks <- matrix(unlist(logWksList),
         byrow = TRUE,
